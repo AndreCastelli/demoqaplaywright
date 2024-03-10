@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:front:all": "npx playwright test tests/front",
+    "test:api:all": "npx playwright test tests/api",
+    "test:e2e": "npx playwright test tests/",
+    "test:positive": "npx playwright test tests/ --grep @positive --project=chromium --headed --retries=0 --reporter=line"
+  },
   "keywords": [],
-  "author": "",
+  "author": "André",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.42.1",

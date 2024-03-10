@@ -14,7 +14,7 @@ test.afterEach( async ({ page }, testInfo) => {
   console.log('Did not run as expected, ended up at ${page.url()}');
 });
 
-test.describe('Validate HomePage', () => {
+test.describe('@positive - Validate HomePage', () => {
   test('url ok', async ({ page }) => {
     await expect(page).toHaveURL('https://demoqa.com');
   });
