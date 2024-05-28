@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",                      // Define o padrão ES que o código será transpilado
+      "module": "CommonJS",                    // Define o sistema de módulos
+      "strict": true,                          // Ativa a verificação estrita de tipos
+      "esModuleInterop": true,                 // Permite a interoperabilidade entre módulos ES e CommonJS
+      "skipLibCheck": true,                    // Ignora a verificação de tipos em arquivos de definição de bibliotecas
+      "forceConsistentCasingInFileNames": true,// Garante consistência no uso de letras maiúsculas/minúsculas nos nomes de arquivos
+      "outDir": "./dist"                       // Diretório onde os arquivos transpilados serão colocados
+    },
+    "include": [
+      "./tests/**/*.ts",                       // Inclui todos os arquivos TypeScript na pasta tests
+      "./pages/**/*.ts"                        // Inclui todos os arquivos TypeScript na pasta pages
+    ]
+  }
+  

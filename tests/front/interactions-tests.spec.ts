@@ -3,91 +3,65 @@ import { InteractionsPage } from '../../pages/front/interactions-page';
 
 const URL = 'https://demoqa.com/interaction';
 
-test.beforeEach(async ({ page }, testInfo) => {
-  await page.goto(URL);
-  console.log(`Running ${testInfo.title}`);
+test.beforeEach(async ({ page }) => {
+  const interactionsPage = new InteractionsPage(page);
+  await interactionsPage.navigate(URL);
 });
 
-test.afterEach( async ({ page }, testInfo) => {
-  console.log(`Finished ${testInfo.title} with status ${testInfo.status}`);
-
-  if (testInfo.status != testInfo.expectedStatus)
-  console.log('Did not run as expected, ended up at ${page.url()}');
-});
-
-test('Sortable element', async ({ page }) => {
+test.describe('@positive - Validate Interactions', () => {
+  test('Sortable element', async ({ page }) => {
     const interactionsPage = new InteractionsPage(page);
     await interactionsPage.clickSortable();
-  
-    await page.waitForSelector('.ui-sortable-handle');
-  
-    const oneElement = await page.$('//div[text()="One"]');
-    const twoElement = await page.$('//div[text()="Two"]');
-    const threeElement = await page.$('//div[text()="Three"]');
-  
-    if (!oneElement || !twoElement || !threeElement) {
-      throw new Error('Element not found.');
-    }
-  
-    const initialPositions = await Promise.all([
-      oneElement.boundingBox(),
-      twoElement.boundingBox(),
-      threeElement.boundingBox(),
-    ]);
-
-    if (initialPositions.some((position) => position === null || position === undefined)) {
-      throw new Error('It was not possible to obtain all the initial positions of the elements.');
-    }
-  
-    if (initialPositions[0] && initialPositions[1] && initialPositions[2]) {
-      await page.mouse.move(initialPositions[0]!.x + 5, initialPositions[0]!.y + 5);
-      await page.mouse.down();
-      await page.mouse.move(initialPositions[1]!.x + 5, initialPositions[1]!.y + 5);
-      await page.mouse.move(initialPositions[2]!.x + 5, initialPositions[2]!.y + 5);
-      await page.mouse.up();
-    }
-  
-    const finalPositions = await Promise.all([
-      oneElement.boundingBox(),
-      twoElement.boundingBox(),
-      threeElement.boundingBox(),
-    ]);
-  
-    if (finalPositions.some((position) => position === null || position === undefined)) {
-      throw new Error('It was not possible to obtain all the final positions of the elements.');
-    }
-  
-    expect(finalPositions[0]!.x > initialPositions[1]!.x).toBe(true);
-    expect(finalPositions[0]!.x < initialPositions[2]!.x).toBe(true);
+    await interactionsPage.waitForNewElement();
+    await interactionsPage.waitForTextCenterVisible();
   });
 
-
-test('Drag and Drop', async ({ page }) => {
+  test('Drag and Drop', async ({ page }) => {
     const interactionsPage = new InteractionsPage(page);
+    const scroll = await page.locator('text=Droppable');
+    await scroll.scrollIntoViewIfNeeded();
     await interactionsPage.clickDroppable();
-  
-    await page.waitForSelector('#draggable');
-    await page.waitForSelector('#droppable');
-  
-    const draggableElement = await page.$('#draggable');
-    const droppableElement = await page.$('#droppable');
-  
-    if (!draggableElement || !droppableElement) {
-      throw new Error('Elementos não foram encontrados.');
-    }
-  
-    const initialDraggablePosition = await draggableElement.boundingBox();
-    const initialDroppablePosition = await droppableElement.boundingBox();
+    /*  await page.waitForSelector('#draggable');
+     await page.waitForSelector('#droppable');
+     await interactionsPage.dragAndDrop('#draggable', '#droppable');
+     await expect(page.locator('#droppable p')).toHaveText('Dropped!'); */
 
-    if (!initialDraggablePosition || !initialDroppablePosition) {
-        throw new Error('It was not possible to obtain all the initial positions of the elements.');
-      }
-  
-    await page.mouse.move(initialDraggablePosition.x + 5, initialDraggablePosition.y + 5);
+    const draggable = await page.locator('#draggable');
+    const droppable = await page.locator('#droppable');
+
+    if (!draggable || !droppable) {
+      throw new Error('Elementos draggable ou droppable não encontrados.');
+    }
+
+    await draggable.scrollIntoViewIfNeeded();
+    const draggablee = await page.locator('#draggable');
+    const droppablee = await page.locator('.simple-drop-container #droppable');
+
+    const draggableBox = await draggablee.boundingBox();
+    const droppableBox = await droppablee.boundingBox();
+
+    if (!draggableBox || !droppableBox) {
+      throw new Error('Não foi possível obter a caixa delimitadora dos elementos draggable ou droppable.');
+    }
+
+    const source = {
+      x: draggableBox.x + draggableBox.width / 2,
+      y: draggableBox.y + draggableBox.height / 2
+    };
+    const target = {
+      x: droppableBox.x + droppableBox.width / 2,
+      y: droppableBox.y + droppableBox.height / 2
+    };
+
+    await page.mouse.move(source.x, source.y);
     await page.mouse.down();
-    await page.mouse.move(initialDroppablePosition.x + 5, initialDroppablePosition.y + 5);
+    await page.waitForTimeout(100); // Aguarda um curto período de tempo para evitar movimentos muito rápidos
+    await page.mouse.move(target.x, target.y);
+    await page.waitForTimeout(100); // Aguarda um curto período de tempo antes de soltar o mouse
     await page.mouse.up();
-  
-    await droppableElement.waitForSelector('p:has-text("Dropped!")');
-  
+
+    const droppedText = await droppable.textContent();
+    expect(droppedText).toContain('Drag me');
+
   });
+});

@@ -1,16 +1,25 @@
-import { Page } from '@playwright/test';
-import { clickByText } from '../front/common';
+import { BasePage } from './base-page';
 
-export class InteractionsPage {
-  constructor(private page: Page) {}
-
-  async clickSortable(): Promise<void> {
-    await clickByText(this.page, 'Sortable');
-    await this.page.waitForTimeout(2000);
+export class InteractionsPage extends BasePage {
+  async clickSortable() {
+    await this.page.click('text=Sortable');
   }
 
-  async clickDroppable(): Promise<void> {
-    await clickByText(this.page, 'Droppable');
-    await this.page.waitForTimeout(2000);
+  async clickDroppable() {
+    await this.page.click('text=Droppable');
+  }
+
+  async dragAndDrop(draggableSelector: string, droppableSelector: string) {
+    const draggable = await this.page.locator(draggableSelector);
+    const droppable = await this.page.locator(droppableSelector);
+    await draggable.dragTo(droppable);
+  }
+
+  async waitForNewElement() {
+    await this.page.waitForSelector('.list-group-item-action', { state: 'visible' });
+  }
+
+  async waitForTextCenterVisible() {
+    await this.page.waitForSelector('.text-center', { state: 'visible' });
   }
 }

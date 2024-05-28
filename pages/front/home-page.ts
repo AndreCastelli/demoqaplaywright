@@ -1,14 +1,22 @@
-import {type Page, type Locator} from '@playwright/test';
-import { clickByText } from '../front/common';
+// pages/HomePage.ts
+import { Page } from '@playwright/test';
 
-export class HomePage{
-    constructor (private page: Page) {
-    }
+export class HomePage {
+  readonly page: Page;
 
-    async clickSortable(): Promise<void> {
-        await clickByText(this.page, 'Sortable');
-        await this.page.waitForTimeout(2000); 
-      }
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+  async navigate() {
+    await this.page.goto('https://demoqa.com/');
+  }
+
+  async getCardTitles() {
+    return this.page.$$eval('.card-body', elements => elements.map(el => el.textContent));
+  }
+
+  async clickElementsCard() {
+    await this.page.getByText('Elements').click();
+  }
 }
-
-export default HomePage;
